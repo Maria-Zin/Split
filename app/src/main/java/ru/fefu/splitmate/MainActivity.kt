@@ -7,13 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavArgument
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.splitmate.ui.screens.*
+import com.example.splitmate.ui.viewmodels.SharedViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +26,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
+                    val viewModel: SharedViewModel = viewModel()
+
                     NavHost(
                         navController = navController,
                         startDestination = "welcome"
@@ -38,50 +41,44 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("input") {
-                            InputScreen { total, people, tipAmount ->
-                                val calcId = System.currentTimeMillis().toString()
-                                navController.navigate("result/$calcId?total=$total&people=$people&tip=$tipAmount")
-                            }
+                            InputScreen(
+                                onCalculateClick = { total, people, tip ->
+                                    viewModel.addCalculation(total, people, tip)
+                                    navController.navigate("result/${viewModel.currentCalculation.value?.id}")
+                                }
+                            )
                         }
 
                         composable(
-                            route = "result/{calcId}?total={total}&people={people}&tip={tip}",
+                            route = "result/{calcId}",
                             arguments = listOf(
                                 navArgument("calcId") {
                                     type = NavType.StringType
-                                },
-                                navArgument("total") {
-                                    type = NavType.StringType
-                                    nullable = true
-                                },
-                                navArgument("people") {
-                                    type = NavType.StringType
-                                    nullable = true
-                                },
-                                navArgument("tip") {
-                                    type = NavType.StringType
-                                    nullable = true
                                 }
                             )
                         ) { backStackEntry ->
-                            val totalArg = backStackEntry.arguments?.getString("total")?.toDoubleOrNull() ?: 0.0
-                            val peopleArg = backStackEntry.arguments?.getString("people")?.toIntOrNull() ?: 1
-                            val tipArg = backStackEntry.arguments?.getString("tip")?.toDoubleOrNull() ?: 0.0
                             val calcId = backStackEntry.arguments?.getString("calcId") ?: ""
+                            val calculation = viewModel.getCalculationById(calcId)
 
-                            ResultScreen(
-                                total = totalArg,
-                                people = peopleArg,
-                                tipAmount = tipArg,
-                                onBackToEdit = {
-                                    navController.popBackStack()
-                                },
-                                onNewCalculation = {
-                                    navController.navigate("welcome") {
-                                        popUpTo("welcome") { inclusive = true }
+                            if (calculation != null) {
+                                ResultScreen(
+                                    total = calculation.total,
+                                    people = calculation.people,
+                                    tipAmount = calculation.tip,
+                                    onBackToEdit = {
+                                        navController.popBackStack()
+                                    },
+                                    onNewCalculation = {
+                                        viewModel.resetCurrent()
+                                        navController.navigate("input") {
+                                            popUpTo("input") { inclusive = true }
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            } else {
+                                // Если расчёт не найден, возвращаем на Input
+                                navController.popBackStack()
+                            }
                         }
                     }
                 }

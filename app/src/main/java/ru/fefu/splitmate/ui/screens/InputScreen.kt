@@ -13,7 +13,7 @@ fun InputScreen(
 ) {
     var totalInput by remember { mutableStateOf("") }
     var peopleInput by remember { mutableStateOf("") }
-    var tipInput by remember { mutableStateOf("") } // Сумма чаевых
+    var tipInput by remember { mutableStateOf("") }
 
     val isCalculateEnabled = totalInput.toDoubleOrNull() != null &&
             totalInput.toDoubleOrNull()!! >= 0 &&
@@ -29,7 +29,6 @@ fun InputScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Сумма счёта
         OutlinedTextField(
             value = totalInput,
             onValueChange = { totalInput = it },
@@ -39,7 +38,6 @@ fun InputScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Количество человек
         OutlinedTextField(
             value = peopleInput,
             onValueChange = { peopleInput = it },
@@ -49,7 +47,6 @@ fun InputScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Сумма чаевых
         OutlinedTextField(
             value = tipInput,
             onValueChange = { tipInput = it },

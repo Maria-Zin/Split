@@ -16,7 +16,7 @@ fun ResultScreen(
     onNewCalculation: () -> Unit
 ) {
     val totalWithTip = total + tipAmount
-    val perPerson = totalWithTip / people
+    val perPerson = if (people > 0) totalWithTip / people else 0.0
 
     Column(
         modifier = Modifier
@@ -28,23 +28,18 @@ fun ResultScreen(
         Text("Results", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Сумма без чаевых
         Text("Total: ${"%.2f".format(total)} ₽")
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Сумма чаевых
         Text("Tip: ${"%.2f".format(tipAmount)} ₽")
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Итого с чаевыми
         Text("Total with tip: ${"%.2f".format(totalWithTip)} ₽")
         Spacer(modifier = Modifier.height(8.dp))
 
-        // На человека
         Text("Per person: ${"%.2f".format(perPerson)} ₽")
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Кнопки
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
