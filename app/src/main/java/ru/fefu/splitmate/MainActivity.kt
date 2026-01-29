@@ -42,9 +42,10 @@ class MainActivity : ComponentActivity() {
 
                         composable("input") {
                             InputScreen(
+                                viewModel = viewModel,
                                 onCalculateClick = { total, people, tip ->
-                                    viewModel.addCalculation(total, people, tip)
-                                    navController.navigate("result/${viewModel.currentCalculation.value?.id}")
+                                    val calculation = viewModel.addCalculation(total, people, tip)
+                                    navController.navigate("result/${calculation.id}")
                                 }
                             )
                         }
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
                             )
                         ) { backStackEntry ->
                             val calcId = backStackEntry.arguments?.getString("calcId") ?: ""
+
                             val calculation = viewModel.getCalculationById(calcId)
 
                             if (calculation != null) {
@@ -76,7 +78,6 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             } else {
-                                // Если расчёт не найден, возвращаем на Input
                                 navController.popBackStack()
                             }
                         }

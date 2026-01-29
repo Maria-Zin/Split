@@ -6,21 +6,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.splitmate.ui.viewmodels.SharedViewModel // Добавьте этот импорт
 
 @Composable
 fun InputScreen(
+    viewModel: SharedViewModel,
     onCalculateClick: (total: Double, people: Int, tipAmount: Double) -> Unit
 ) {
     var totalInput by remember { mutableStateOf("") }
     var peopleInput by remember { mutableStateOf("") }
     var tipInput by remember { mutableStateOf("") }
 
-    val isCalculateEnabled = totalInput.toDoubleOrNull() != null &&
-            totalInput.toDoubleOrNull()!! >= 0 &&
-            peopleInput.toIntOrNull() != null &&
-            peopleInput.toIntOrNull()!! > 0 &&
-            tipInput.toDoubleOrNull() != null &&
-            tipInput.toDoubleOrNull()!! >= 0
+    LaunchedEffect(totalInput, peopleInput, tipInput) {
+        viewModel.updateInputs(totalInput, peopleInput, tipInput)
+    }
 
     Column(
         modifier = Modifier
@@ -63,7 +62,7 @@ fun InputScreen(
                 val tip = tipInput.toDoubleOrNull() ?: 0.0
                 onCalculateClick(total, people, tip)
             },
-            enabled = isCalculateEnabled,
+            enabled = viewModel.isCalculateEnabled.value,
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Calculate")
